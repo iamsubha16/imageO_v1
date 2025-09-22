@@ -29,17 +29,17 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          echo $HF_TOKEN | docker login -u <HF_USERNAME> --password-stdin huggingface.co
+          echo $HF_TOKEN | docker login -u iamSubha16 --password-stdin huggingface.co
 
       # 5️⃣ Build Docker image
       - name: Build Docker image
         run: |
-          docker build -t <HF_USERNAME>/<SPACE_NAME>:latest .
+          docker build -t iamSubha16/imageO:latest .
 
       # 6️⃣ Push Docker image to HF Hub
       - name: Push Docker image
         run: |
-          docker push <HF_USERNAME>/<SPACE_NAME>:latest
+          docker push iamSubha16/imageO:latest
 
       # 7️⃣ Notify success
       - name: Notify
