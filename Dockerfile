@@ -1,3 +1,4 @@
+# Base image
 FROM python:3.12.1
 
 # Set working directory
@@ -10,10 +11,10 @@ RUN apt-get update && apt-get install -y \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-# Create a consistent non-root user with known UID (1000) and GID (1000)
+# Create a consistent non-root user
 RUN groupadd -g 1000 appgroup && useradd -u 1000 -g appgroup -m appuser
 
-# Create cache directories and set correct ownership and permissions
+# Create cache directories and set permissions
 RUN mkdir -p /app/.cache /app/.u2net && \
     chown -R appuser:appgroup /app/.cache /app/.u2net && \
     chmod -R 755 /app/.cache /app/.u2net
@@ -22,18 +23,20 @@ RUN mkdir -p /app/.cache /app/.u2net && \
 COPY requirements.txt .
 RUN pip install --no-cache-dir --no-warn-script-location -r requirements.txt
 
-# Copy the rest of your app code
-COPY . .
+# Copy compiled Python files (.pyc) only
+COPY __pycache__/ ./__pycache__/
 
-# Change ownership of everything to appuser
+# Copy your models
+COPY models/ ./models/
+
+# Set ownership to non-root user
 RUN chown -R appuser:appgroup /app
 
 # Switch to non-root user
 USER appuser
 
-# Expose port for HF Spaces
+# Expose the port for HF Spaces
 EXPOSE 7860
 
-# Launch app
-CMD ["gunicorn", "--bind", "0.0.0.0:7860", "run:app"]
-# CMD ["gunicorn", "--bind", "0.0.0.0:7860", "--workers", "2", "--threads", "1", "--worker-class", "gthread", "--timeout", "600", "--max-requests", "1000", "--max-requests-jitter", "100", "--worker-tmp-dir", "/dev/shm", "--preload", "app:app"]
+# Launch your Flask app from compiled .pyc
+CMD ["python", "-m", "__pycache__.run.cpython-312"]
