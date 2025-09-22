@@ -14,7 +14,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Set up Python (required for compiling your app)
+      # 2️⃣ Set up Python (needed to compile .py files)
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -30,12 +30,9 @@ jobs:
       - name: Compile Python files
         run: python -m compileall .
 
-      # 5️⃣ Clone Hugging Face Space repo
+      # 5️⃣ Clone HF Space repo (without token)
       - name: Clone Hugging Face Space
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: |
-          git clone https://$HF_TOKEN@huggingface.co/spaces/iamSubha16/imageO space_repo
+        run: git clone https://huggingface.co/spaces/iamSubha16/imageO space_repo
 
       # 6️⃣ Copy compiled files, Dockerfile, and requirements.txt
       - name: Copy compiled app files
@@ -44,7 +41,7 @@ jobs:
           rsync -av --exclude='.git' Dockerfile ./space_repo/
           rsync -av --exclude='.git' requirements.txt ./space_repo/
 
-      # 7️⃣ Commit & push to HF Space
+      # 7️⃣ Commit & Push to HF Space (with token)
       - name: Commit & Push to HF Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
