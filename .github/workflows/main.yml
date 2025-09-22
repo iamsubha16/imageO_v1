@@ -9,33 +9,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout your GitHub repo
+      # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Set up Python (optional if your Docker build needs Python)
+      # 2️⃣ Set up Python (needed for compiling .py files)
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.12'
 
-      # 3️⃣ Log in to Hugging Face Hub container registry
+      # 3️⃣ Compile all Python files to .pyc (hides source code)
+      - name: Compile Python files
+        run: |
+          python -m compileall .
+
+      # 4️⃣ Log in to Hugging Face Hub container registry
       - name: Login to HF Hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          echo $HF_TOKEN | docker login ghcr.io -u iamSubha16 --password-stdin
+          echo $HF_TOKEN | docker login ghcr.io -u <HF_USERNAME> --password-stdin
 
-      # 4️⃣ Build Docker image
+      # 5️⃣ Build Docker image
       - name: Build Docker image
         run: |
-          docker build -t ghcr.io/iamSubha16/imageO:latest .
+          docker build -t ghcr.io/huggingface/spaces/<HF_USERNAME>/<SPACE_NAME>:latest .
 
-      # 5️⃣ Push Docker image to HF Hub
+      # 6️⃣ Push Docker image to HF Hub
       - name: Push Docker image
         run: |
-          docker push ghcr.io/iamSubha16/imageO:latest
+          docker push ghcr.io/huggingface/spaces/<HF_USERNAME>/<SPACE_NAME>:latest
 
-      # 6️⃣ Optional: Notify that image is pushed (optional step)
-      - name: Notification
-        run: echo "Docker image pushed to HF Hub successfully."
+      # 7️⃣ Notify success
+      - name: Notify
+        run: echo "Docker image pushed to Hugging Face Hub successfully."
