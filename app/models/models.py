@@ -9,7 +9,7 @@ def initialize_models(app):
         app.logger.info("Initializing u2net session...")
 
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        model_dir = os.path.join(base_dir, "models")
+        model_dir = os.path.join(base_dir, "ml_models")
         local_model_path = os.path.join(model_dir, "u2net.onnx")
 
         cache_dir = os.path.expanduser("~/.u2net")

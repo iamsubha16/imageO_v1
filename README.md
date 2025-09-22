@@ -1,6 +1,6 @@
 # Milk Adulterant Detection System
 
-![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
+![Python](https://img.shields.io/badge/python-3.12+-blue.svg)
 ![Flask](https://img.shields.io/badge/Flask-2.3+-green.svg)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-2.13+-orange.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
@@ -43,58 +43,6 @@ A sophisticated web application that uses deep learning and computer vision to d
 - Firebase project with authentication enabled
 - CUDA-compatible GPU (recommended for faster processing)
 
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/milk-adulterant-detection.git
-   cd milk-adulterant-detection
-   ```
-
-2. **Create and activate virtual environment**
-   ```bash
-   python -m venv venv
-   
-   # On Windows
-   venv\Scripts\activate
-   
-   # On macOS/Linux
-   source venv/bin/activate
-   ```
-
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Set up environment variables**
-   ```bash
-   # Create .env file
-   cp .env.example .env
-   
-   # Edit .env with your configuration
-   export SECRET_KEY="your-secret-key-here"
-   export FIREBASE_CREDS="your-base64-encoded-firebase-credentials"
-   export FLASK_ENV="development"  # or "production"
-   ```
-
-5. **Download ML models**
-   ```bash
-   # Create models directory
-   mkdir models
-   
-   # Place your trained model file in the root directory:
-   # milk_adulterant_detector_model_v7.keras
-   
-   # Optionally, place u2net.onnx in models/ directory for faster startup
-   ```
-
-6. **Run the application**
-   ```bash
-   python run.py
-   ```
-
-The application will be available at `http://localhost:7860`
 
 ## 📁 Project Structure
 

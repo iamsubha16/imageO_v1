@@ -35,5 +35,5 @@ USER appuser
 EXPOSE 7860
 
 # Launch app
-CMD ["gunicorn", "--bind", "0.0.0.0:7860", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:7860", "run:app"]
 # CMD ["gunicorn", "--bind", "0.0.0.0:7860", "--workers", "2", "--threads", "1", "--worker-class", "gthread", "--timeout", "600", "--max-requests", "1000", "--max-requests-jitter", "100", "--worker-tmp-dir", "/dev/shm", "--preload", "app:app"]

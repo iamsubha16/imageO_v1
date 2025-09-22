@@ -20,7 +20,7 @@ def create_app():
     
     # Initialize services
     try:
-        from app.models.ml_models import initialize_models
+        from app.models.models import initialize_models
         from app.services.firebase_service import initialize_firebase
         
         # Store models in app config for global access

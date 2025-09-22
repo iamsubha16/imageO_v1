@@ -27,4 +27,4 @@ class Config:
     # Application constants
     CLASS_NAMES = ['Milk', 'Milk+Oil']
     ALLOWED_IMAGE_TYPES = {'image/jpeg', 'image/jpg', 'image/png', 'image/webp'}
-    MODEL_PATH = "milk_adulterant_detector_model_v7.keras"
+    MODEL_PATH = "ml_models/milk_adulterant_detector_model_v7.keras"
