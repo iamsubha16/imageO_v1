@@ -37,5 +37,6 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          # Push using token in the URL (no interactive prompt required)
-          git push https://$HF_TOKEN@huggingface.co/spaces/iamsubha16/imageo main
+          git config credential.helper store
+          echo "https://huggingface.co:$HF_TOKEN@huggingface.co" > ~/.git-credentials
+          git push https://huggingface.co/spaces/iamsubha16/imageo main
