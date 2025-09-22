@@ -55,10 +55,4 @@ jobs:
           git config user.name "github-actions[bot]"
           git add .
           git commit -m "Deploy latest Flask app" || echo "No changes to commit"
-      
-          # Configure git to use the HF token for authentication
-          git config credential.helper store
-          echo "https://huggingface.co=${HF_TOKEN}" > ~/.git-credentials
-      
-          # Push changes
-          git push https://huggingface.co/spaces/iamSubha16/imageo main
+          git push https://${HF_TOKEN}@huggingface.co/spaces/iamSubha16/imageo main
