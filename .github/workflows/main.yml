@@ -9,11 +9,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout your private repo
+      # 1️⃣ Checkout your private GitHub repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Set up Python
+      # 2️⃣ Set up Python (needed for HF CLI)
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -23,24 +23,25 @@ jobs:
       - name: Install Hugging Face CLI
         run: pip install huggingface_hub
 
-      # 4️⃣ Login to Hugging Face using CLI
-      - name: Login to HF CLI
+      # 4️⃣ Login to Hugging Face Hub using token
+      - name: HF CLI login
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: huggingface-cli login --token $HF_TOKEN
 
-      # 5️⃣ Build Docker image
+      # 5️⃣ Build Docker image (compile Python inside container)
       - name: Build Docker image
-        run: docker build -t imageo:latest .
+        run: |
+          docker build -t imageo:latest .
 
-      # 6️⃣ Tag Docker image for HF Space
+      # 6️⃣ Tag Docker image for your HF Space
       - name: Tag Docker image
         run: docker tag imageo:latest huggingface.co/spaces/iamsubha16/imageo:latest
 
-      # 7️⃣ Push Docker image to HF Space
-      - name: Push Docker image
+      # 7️⃣ Push Docker image to Hugging Face Space
+      - name: Push Docker image to HF Space
         run: docker push huggingface.co/spaces/iamsubha16/imageo:latest
 
-      # 8️⃣ Optional: Notify successful push
-      - name: Notification
-        run: echo "Docker image pushed to Hugging Face Space successfully."
+      # 8️⃣ Notify success
+      - name: Deployment Success
+        run: echo "Docker image successfully pushed to Hugging Face Space."
