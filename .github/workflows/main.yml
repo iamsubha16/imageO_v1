@@ -37,17 +37,16 @@ jobs:
       # 6️⃣ Build Docker image
       - name: Build Docker image
         run: |
-          docker build -t iamSubha16/imageO:latest .
+          docker build -t iamsubha16/imageo:latest .
 
       # 7️⃣ Push Docker image to Hugging Face Space
       - name: Push Docker image to HF Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          # Tag the image for HF Hub
-          docker tag iamSubha16/imageO:latest ghcr.io/huggingface/spaces/iamSubha16/imageO:latest
-          docker login ghcr.io -u iamSubha16 -p $HF_TOKEN
-          docker push ghcr.io/huggingface/spaces/iamSubha16/imageO:latest
+          docker tag iamsubha16/imageo:latest ghcr.io/huggingface/spaces/iamsubha16/imageo:latest
+          docker login ghcr.io -u iamsubha16 -p $HF_TOKEN
+          docker push ghcr.io/huggingface/spaces/iamsubha16/imageo:latest
 
       # 8️⃣ Notification
       - name: Notify
