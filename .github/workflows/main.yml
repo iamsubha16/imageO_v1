@@ -49,5 +49,10 @@ jobs:
           cd space_repo
           git add .
           git commit -m "Deploy compiled Flask app" || echo "No changes to commit"
-          git remote set-url origin https://$HF_TOKEN@huggingface.co/spaces/iamSubha16/imageO
-          git push origin main
+          
+          # Configure Git to use HF_TOKEN for authentication
+          git config credential.helper store
+          echo "https://huggingface.co=${HF_TOKEN}" > ~/.git-credentials
+          
+          # Push changes
+          git push https://huggingface.co/spaces/iamSubha16/imageO main
