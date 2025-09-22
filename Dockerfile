@@ -18,7 +18,7 @@ RUN pip install --no-cache-dir --no-warn-script-location -r requirements.txt
 COPY __pycache__/ ./__pycache__/
 
 # ML models
-COPY models/ ./models/
+COPY ml_models/ ./ml_models/
 
 # Templates & static assets
 COPY templates/ ./templates/
