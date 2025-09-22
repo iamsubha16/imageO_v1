@@ -1,4 +1,4 @@
-name: Build & Deploy Docker to Hugging Face Space
+name: Build & Deploy Docker to HF Space
 
 on:
   push:
@@ -9,45 +9,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout repository
+      # 1️⃣ Checkout your private repo
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Set up Python
+      # 2️⃣ Set up Python (optional if your Docker build needs Python)
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
 
-      # 3️⃣ Compile all Python files to .pyc (hides source code)
-      - name: Compile Python files
-        run: |
-          python -m compileall .
-
-      # 4️⃣ Install Hugging Face CLI
-      - name: Install huggingface_hub
-        run: pip install huggingface_hub
-
-      # 5️⃣ Log in to Hugging Face using token
-      - name: HF Hub Login
+      # 3️⃣ Login to Hugging Face Hub container registry
+      - name: Login to Hugging Face Hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: huggingface-cli login --token $HF_TOKEN
+        run: |
+          echo $HF_TOKEN | docker login --username iamSubha16 --password-stdin huggingface.co
 
-      # 6️⃣ Build Docker image
+      # 4️⃣ Build Docker image
       - name: Build Docker image
         run: |
-          docker build -t iamsubha16/imageo:latest .
+          docker build -t imageo:latest .
 
-      # 7️⃣ Push Docker image to Hugging Face Space
-      - name: Push Docker image to HF Space
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      # 5️⃣ Tag Docker image for HF Spaces
+      - name: Tag Docker image
         run: |
-          docker tag iamsubha16/imageo:latest ghcr.io/huggingface/spaces/iamsubha16/imageo:latest
-          docker login ghcr.io -u iamsubha16 -p $HF_TOKEN
-          docker push ghcr.io/huggingface/spaces/iamsubha16/imageo:latest
+          docker tag imageo:latest huggingface.co/spaces/iamSubha16/imageo:latest
 
-      # 8️⃣ Notification
-      - name: Notify
-        run: echo "Docker image successfully pushed to Hugging Face Space!"
+      # 6️⃣ Push Docker image to HF Space
+      - name: Push Docker image
+        run: |
+          docker push huggingface.co/spaces/iamSubha16/imageo:latest
+
+      # 7️⃣ Optional: Notify that image is pushed
+      - name: Notification
+        run: echo "Docker image pushed to HF Space successfully."
