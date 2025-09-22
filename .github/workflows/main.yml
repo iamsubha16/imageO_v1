@@ -13,34 +13,34 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Set up Python (optional if your Docker build needs Python)
+      # 2️⃣ Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
 
-      # 3️⃣ Login to Hugging Face Hub container registry
-      - name: Login to Hugging Face Hub
+      # 3️⃣ Install Hugging Face Hub CLI
+      - name: Install Hugging Face CLI
+        run: pip install huggingface_hub
+
+      # 4️⃣ Login to Hugging Face using CLI
+      - name: Login to HF CLI
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: |
-          echo $HF_TOKEN | docker login --username iamSubha16 --password-stdin huggingface.co
+        run: huggingface-cli login --token $HF_TOKEN
 
-      # 4️⃣ Build Docker image
+      # 5️⃣ Build Docker image
       - name: Build Docker image
-        run: |
-          docker build -t imageo:latest .
+        run: docker build -t imageo:latest .
 
-      # 5️⃣ Tag Docker image for HF Spaces
+      # 6️⃣ Tag Docker image for HF Space
       - name: Tag Docker image
-        run: |
-          docker tag imageo:latest huggingface.co/spaces/iamSubha16/imageo:latest
+        run: docker tag imageo:latest huggingface.co/spaces/iamsubha16/imageo:latest
 
-      # 6️⃣ Push Docker image to HF Space
+      # 7️⃣ Push Docker image to HF Space
       - name: Push Docker image
-        run: |
-          docker push huggingface.co/spaces/iamSubha16/imageo:latest
+        run: docker push huggingface.co/spaces/iamsubha16/imageo:latest
 
-      # 7️⃣ Optional: Notify that image is pushed
+      # 8️⃣ Optional: Notify successful push
       - name: Notification
-        run: echo "Docker image pushed to HF Space successfully."
+        run: echo "Docker image pushed to Hugging Face Space successfully."
