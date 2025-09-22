@@ -1,0 +1,37 @@
+name: Deploy Compiled App to HF Space
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Compile Python files
+        run: python -m compileall .
+
+      - name: Clone HF Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: git clone https://$HF_TOKEN@huggingface.co/spaces/iamSubha16/imageO space_repo
+
+      - name: Copy compiled files + Dockerfile
+        run: |
+          rsync -av --exclude='.git' __pycache__/ ./space_repo/
+          rsync -av --exclude='.git' Dockerfile ./space_repo/
+          rsync -av --exclude='.git' requirements.txt ./space_repo/
+
+      - name: Push to HF Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          cd space_repo
+          git add .
+          git commit -m "Deploy compiled app" || echo "No changes"
+          git push https://$HF_TOKEN@huggingface.co/spaces/iamSubha16/imageO main
