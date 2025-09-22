@@ -10,49 +10,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout your private GitHub repo
+      # 1️⃣ Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Set up Python (optional if your app needs Python during prep)
-      - name: Set up Python
+      # 2️⃣ Set up Python (optional, if you need Python commands in workflow)
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
-      # 3️⃣ Install rsync and git (for copying files)
-      - name: Install dependencies
+      # 3️⃣ Configure git for GitHub Actions bot
+      - name: Configure Git
         run: |
-          sudo apt-get update
-          sudo apt-get install -y git rsync
-
-      # 4️⃣ Clone your HF Space repo using token
-      - name: Clone HF Space repo
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: |
-          rm -rf space_repo || true
-          git clone https://$HF_TOKEN@huggingface.co/spaces/iamSubha16/imageo space_repo
-
-      # 5️⃣ Copy app files and Dockerfile to HF Space repo
-      - name: Copy app files to HF Space
-        run: |
-          rsync -av --exclude='.git' ./Dockerfile ./space_repo/
-          rsync -av --exclude='.git' ./ml_models/ ./space_repo/ml_models/
-          rsync -av --exclude='.git' ./app/ ./space_repo/app/
-          rsync -av --exclude='.git' ./templates/ ./space_repo/templates/
-          rsync -av --exclude='.git' ./static/ ./space_repo/static/
-          rsync -av --exclude='.git' ./requirements.txt ./space_repo/
-          rsync -av --exclude='.git' ./run.py ./space_repo/
-
-      # 6️⃣ Commit & push changes to HF Space
-      - name: Commit & Push to HF Space
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: |
-          cd space_repo
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
+
+      # 4️⃣ Commit changes (if any)
+      - name: Commit changes
+        run: |
           git add .
           git commit -m "Deploy latest Flask app" || echo "No changes to commit"
-          git push https://${HF_TOKEN}@huggingface.co/spaces/iamSubha16/imageo main
+
+      # 5️⃣ Push to HF Space using HF_TOKEN
+      - name: Push to HuggingFace Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          # Push using token in the URL (no interactive prompt required)
+          git push https://$HF_TOKEN@huggingface.co/spaces/iamsubha16/imageo main
