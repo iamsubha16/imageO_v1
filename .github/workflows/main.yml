@@ -24,22 +24,22 @@ jobs:
         run: |
           python -m compileall .
 
-      # 4️⃣ Log in to Hugging Face Hub container registry
+      # 4️⃣ Log in to Hugging Face Hub Docker registry
       - name: Login to HF Hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          echo $HF_TOKEN | docker login ghcr.io -u iamSubha16 --password-stdin
+          echo $HF_TOKEN | docker login -u <HF_USERNAME> --password-stdin huggingface.co
 
       # 5️⃣ Build Docker image
       - name: Build Docker image
         run: |
-          docker build -t ghcr.io/huggingface/spaces/iamSubha16/imageO:latest .
+          docker build -t <HF_USERNAME>/<SPACE_NAME>:latest .
 
       # 6️⃣ Push Docker image to HF Hub
       - name: Push Docker image
         run: |
-          docker push ghcr.io/huggingface/spaces/iamSubha16/imageO:latest
+          docker push <HF_USERNAME>/<SPACE_NAME>:latest
 
       # 7️⃣ Notify success
       - name: Notify
