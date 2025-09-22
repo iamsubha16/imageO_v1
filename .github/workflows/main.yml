@@ -1,4 +1,4 @@
-name: Build & Deploy Docker to HF Space
+name: Build & Deploy Docker to Hugging Face Space
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Set up Python (needed for compiling .py files)
+      # 2️⃣ Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -24,23 +24,31 @@ jobs:
         run: |
           python -m compileall .
 
-      # 4️⃣ Log in to Hugging Face Hub Docker registry
-      - name: Login to HF Hub
+      # 4️⃣ Install Hugging Face CLI
+      - name: Install huggingface_hub
+        run: pip install huggingface_hub
+
+      # 5️⃣ Log in to Hugging Face using token
+      - name: HF Hub Login
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: |
-          echo $HF_TOKEN | docker login -u iamSubha16 --password-stdin huggingface.co
+        run: huggingface-cli login --token $HF_TOKEN
 
-      # 5️⃣ Build Docker image
+      # 6️⃣ Build Docker image
       - name: Build Docker image
         run: |
           docker build -t iamSubha16/imageO:latest .
 
-      # 6️⃣ Push Docker image to HF Hub
-      - name: Push Docker image
+      # 7️⃣ Push Docker image to Hugging Face Space
+      - name: Push Docker image to HF Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          docker push iamSubha16/imageO:latest
+          # Tag the image for HF Hub
+          docker tag iamSubha16/imageO:latest ghcr.io/huggingface/spaces/iamSubha16/imageO:latest
+          docker login ghcr.io -u iamSubha16 -p $HF_TOKEN
+          docker push ghcr.io/huggingface/spaces/iamSubha16/imageO:latest
 
-      # 7️⃣ Notify success
+      # 8️⃣ Notification
       - name: Notify
-        run: echo "Docker image pushed to Hugging Face Hub successfully."
+        run: echo "Docker image successfully pushed to Hugging Face Space!"
