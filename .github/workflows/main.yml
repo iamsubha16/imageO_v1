@@ -1,4 +1,4 @@
-name: Deploy Flask App to HF Space
+name: Deploy Flask App to HuggingFace Space
 
 on:
   push:
@@ -10,33 +10,45 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout the repository
-      - name: Checkout repository
+      # 1️⃣ Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v3
+        with:
+          lfs: true  # Ensure LFS files are pulled
 
-      # 2️⃣ Set up Python (optional, if you need Python commands in workflow)
+      # 2️⃣ Set up Python
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.12"
+          python-version: '3.12'
 
-      # 3️⃣ Configure git for GitHub Actions bot
-      - name: Configure Git
+      # 3️⃣ Install Git LFS
+      - name: Install Git LFS
+        run: |
+          curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
+          sudo apt-get install -y git-lfs
+          git lfs install
+
+      # 4️⃣ Configure git user for commit
+      - name: Configure git
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
 
-      # 4️⃣ Commit changes (if any)
+      # 5️⃣ Add, commit changes
       - name: Commit changes
         run: |
           git add .
           git commit -m "Deploy latest Flask app" || echo "No changes to commit"
 
-      # 5️⃣ Push to HF Space using HF_TOKEN
-      - name: Push to HuggingFace Space
+      # 6️⃣ Push to HuggingFace Space using token
+      - name: Push to HF Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
+          # Store token for non-interactive authentication
           git config credential.helper store
-          echo "https://huggingface.co:$HF_TOKEN@huggingface.co" > ~/.git-credentials
-          git push https://huggingface.co/spaces/iamsubha16/imageo main
+          echo "https://huggingface.co=${HF_TOKEN}" > ~/.git-credentials
+
+          # Push changes
+          git push https://huggingface.co/spaces/iamSubha16/imageo main
