@@ -1,47 +1,57 @@
-name: Build & Deploy Docker to HF Space
+name: Deploy Flask Docker App to HF Space
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main  # Trigger on push to main branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout your private GitHub repository
+      # 1️⃣ Checkout your private GitHub repo
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Set up Python (needed for HF CLI)
+      # 2️⃣ Set up Python (needed for scripts or pre-build tasks)
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
 
-      # 3️⃣ Install Hugging Face Hub CLI
-      - name: Install Hugging Face CLI
-        run: pip install huggingface_hub
+      # 3️⃣ Install Git (in case it's missing) and other tools
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git rsync
 
-      # 4️⃣ Login to Hugging Face Hub using token
-      - name: HF CLI login
+      # 4️⃣ Clone your Hugging Face Space repo
+      - name: Clone HF Space repo
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: huggingface-cli login --token $HF_TOKEN
-
-      # 5️⃣ Build Docker image (compile Python inside container)
-      - name: Build Docker image
         run: |
-          docker build -t imageo:latest .
+          git clone https://$HF_TOKEN@huggingface.co/spaces/iamSubha16/imageo space_repo
 
-      # 6️⃣ Tag Docker image for your HF Space
-      - name: Tag Docker image
-        run: docker tag imageo:latest huggingface.co/spaces/iamsubha16/imageo:latest
+      # 5️⃣ Copy app files and Dockerfile to HF Space repo
+      - name: Copy app to HF Space
+        run: |
+          rsync -av --exclude='.git' ./Dockerfile ./space_repo/
+          rsync -av --exclude='.git' ./ml_models/ ./space_repo/ml_models/
+          rsync -av --exclude='.git' ./app/ ./space_repo/app/
+          rsync -av --exclude='.git' ./templates/ ./space_repo/templates/
+          rsync -av --exclude='.git' ./static/ ./space_repo/static/
+          rsync -av --exclude='.git' ./requirements.txt ./space_repo/
+          rsync -av --exclude='.git' ./run.py ./space_repo/
 
-      # 7️⃣ Push Docker image to Hugging Face Space
-      - name: Push Docker image to HF Space
-        run: docker push huggingface.co/spaces/iamsubha16/imageo:latest
-
-      # 8️⃣ Notify success
-      - name: Deployment Success
-        run: echo "Docker image successfully pushed to Hugging Face Space."
+      # 6️⃣ Commit & push changes to HF Space
+      - name: Commit & Push to HF Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          cd space_repo
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add .
+          git commit -m "Deploy latest Flask app" || echo "No changes to commit"
+          git push origin main
