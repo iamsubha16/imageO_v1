@@ -14,29 +14,29 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Set up Python (needed to run Python scripts)
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12.1'
-
-      # 3️⃣ Configure git identity for commits
+      # 2️⃣ Configure git identity for commits
       - name: Configure git
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
 
-      # 4️⃣ Clone HF Space repo (without token)
+      # 3️⃣ Install Git LFS (for images/binaries)
+      - name: Install Git LFS
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git-lfs
+          git lfs install
+
+      # 4️⃣ Clone HF Space repo
       - name: Clone Hugging Face Space
         run: git clone https://huggingface.co/spaces/iamSubha16/imageO space_repo
 
-      # 5️⃣ Copy all app files, Dockerfile, and requirements.txt
-      - name: Copy app files
+      # 5️⃣ Copy all files (except .git) to HF Space repo
+      - name: Copy all files
         run: |
           rsync -av --exclude='.git' ./ ./space_repo/
-          rsync -av --exclude='.git' --exclude='static/images/*' ./ ./space_repo/
 
-      # 6️⃣ Commit & Push to HF Space (with token)
+      # 6️⃣ Commit & Push to HF Space
       - name: Commit & Push to HF Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
