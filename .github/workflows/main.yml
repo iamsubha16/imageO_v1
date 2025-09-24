@@ -1,51 +1,52 @@
-name: Deploy Flask App to HuggingFace Space
+name: Deploy Flask App to Hugging Face Spaces
 
 on:
   push:
     branches:
-      - main
+      - main  # deploy on push to main branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout repository
-      - name: Checkout repo
+      # 1️⃣ Checkout your private repo
+      - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          lfs: true  # Ensure LFS files are pulled
 
-      # 2️⃣ Set up Python
-      - name: Setup Python
+      # 2️⃣ Set up Python (needed to compile .py files)
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
+          python-version: '3.10'
 
-      # 3️⃣ Install Git LFS
-      - name: Install Git LFS
-        run: |
-          curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
-          sudo apt-get install -y git-lfs
-          git lfs install
-
-      # 4️⃣ Configure git user for commit
+      # 3️⃣ Configure git identity for commits
       - name: Configure git
         run: |
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git config user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
 
-      # 5️⃣ Add, commit changes
-      - name: Commit changes
+      # 4️⃣ Compile Python files to .pyc
+      - name: Compile Python files
+        run: python -m compileall .
+
+      # 5️⃣ Clone HF Space repo (without token)
+      - name: Clone Hugging Face Space
+        run: git clone https://huggingface.co/spaces/iamSubha16/imageO space_repo
+
+      # 6️⃣ Copy compiled files, Dockerfile, and requirements.txt
+      - name: Copy compiled app files
         run: |
-          git add .
-          git commit -m "Deploy latest Flask app" || echo "No changes to commit"
+          rsync -av --exclude='.git' __pycache__/ ./space_repo/
+          rsync -av --exclude='.git' Dockerfile ./space_repo/
+          rsync -av --exclude='.git' requirements.txt ./space_repo/
 
-      # 6️⃣ Push to HuggingFace Space using token
-      - name: Push to HF Space
+      # 7️⃣ Commit & Push to HF Space (with token)
+      - name: Commit & Push to HF Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git config credential.helper store
-          echo "https://iamSubha16:${HF_TOKEN}@huggingface.co" > ~/.git-credentials
-          git push https://huggingface.co/spaces/iamSubha16/imageo main
+          cd space_repo
+          git add .
+          git commit -m "Deploy compiled Flask app" || echo "No changes to commit"
+          git push https://token:${HF_TOKEN}@huggingface.co/spaces/iamSubha16/imageO main
