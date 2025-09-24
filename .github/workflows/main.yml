@@ -34,6 +34,7 @@ jobs:
       - name: Copy app files
         run: |
           rsync -av --exclude='.git' ./ ./space_repo/
+          rsync -av --exclude='.git' --exclude='static/images/*' ./ ./space_repo/
 
       # 6️⃣ Commit & Push to HF Space (with token)
       - name: Commit & Push to HF Space
