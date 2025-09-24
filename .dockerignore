@@ -1,0 +1,15 @@
+# Git / GitHub related
+.git
+.gitignore
+.github/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local configs
+.env
+*.log
+
+# OS files
+.DS_Store

@@ -13,10 +13,8 @@ def initialize_firebase(app):
         if not firebase_creds_b64:
             raise ValueError("FIREBASE_CREDS environment variable not set")
 
-        # decoded = base64.b64decode(firebase_creds_b64)
-        # creds_dict = json.loads(decoded)
-
-        creds_dict = json.loads(firebase_creds_b64)
+        decoded = base64.b64decode(firebase_creds_b64)
+        creds_dict = json.loads(decoded)
         
         app.logger.info("Firebase credentials decoded successfully")
         

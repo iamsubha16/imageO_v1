@@ -35,4 +35,4 @@ USER appuser
 EXPOSE 7860
 
 # Launch Flask app via run.py
-CMD ["python", "run.py"]
+CMD ["gunicorn", "--bind", "0.0.0.0:7860", "run:app"]

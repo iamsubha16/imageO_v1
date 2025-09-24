@@ -27,4 +27,7 @@ class Config:
     # Application constants
     CLASS_NAMES = ['Milk', 'Milk+Oil']
     ALLOWED_IMAGE_TYPES = {'image/jpeg', 'image/jpg', 'image/png', 'image/webp'}
-    MODEL_PATH = "ml_models/milk_adulterant_detector_model_v7.keras"
+    CLASSIFICATION_MODEL_REPO_ID = "iamSubha16/milk_adulterant_detector_model_v7"
+    CLASSIFICATION_MODEL_NAME = "milk_adulterant_detector_model_v7.keras"
+    BG_REMOVAL_MODEL_REPO_ID="iamSubha16/background_removal_model"
+    BG_REMOVAL_MODEL_NAME="u2net.onnx"
