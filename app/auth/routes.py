@@ -3,6 +3,16 @@ from firebase_admin import auth
 
 auth_bp = Blueprint('auth', __name__)
 
+# Read base64 images once at app startup
+with open("static/images/favicon.txt", "r") as f:
+    FAVICON_B64 = f.read().strip()  # Remove whitespace/newlines
+
+with open("static/images/imageO.txt", "r") as f:
+    IMAGEO_B64 = f.read().strip()  # Remove whitespace/newlines
+
+with open("static/images/placeholder.txt", "r") as f:
+    PLACEHOLDER_B64 = f.read().strip()  # Remove whitespace/newlines
+
 @auth_bp.route('/signup', methods=['GET', 'POST'])
 def signup():
     current_app.logger.info("Signup attempt - currently disabled")
@@ -14,7 +24,7 @@ def login():
         id_token = request.form.get('idToken')
         if not id_token:
             current_app.logger.warning("Login attempt without ID token")
-            return render_template('login.html', error="Missing ID token.")
+            return render_template('login.html',  favicon_b64=FAVICON_B64, imageo_b64=IMAGEO_B64, placeholder_b64=PLACEHOLDER_B64, error="Missing ID token.")
             
         try:
             decoded_token = auth.verify_id_token(id_token)
@@ -27,9 +37,9 @@ def login():
             
         except Exception as e:
             current_app.logger.warning(f"Login failed: {str(e)}")
-            return render_template('login.html', error=f"Invalid token: {str(e)}")
+            return render_template('login.html',  favicon_b64=FAVICON_B64, imageo_b64=IMAGEO_B64, placeholder_b64=PLACEHOLDER_B64, error=f"Invalid token: {str(e)}")
             
-    return render_template('login.html')
+    return render_template('login.html', favicon_b64=FAVICON_B64, imageo_b64=IMAGEO_B64, placeholder_b64=PLACEHOLDER_B64)
 
 @auth_bp.route('/logout')
 def logout():

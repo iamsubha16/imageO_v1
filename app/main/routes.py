@@ -1,16 +1,33 @@
 from flask import Blueprint, render_template, request, jsonify, session, current_app
 from datetime import datetime
 import traceback
+import pytz
 from app.auth.decorators import login_required
 from app.services.prediction import predict_from_base64
 
 main_bp = Blueprint('main', __name__)
 
+local_tz = pytz.timezone("Asia/Kolkata")
+local_time = datetime.now(local_tz)
+
+# Read base64 images once at app startup
+with open("static/images/favicon.txt", "r") as f:
+    FAVICON_B64 = f.read().strip()  # Remove whitespace/newlines
+
+with open("static/images/imageO.txt", "r") as f:
+    IMAGEO_B64 = f.read().strip()  # Remove whitespace/newlines
+
+with open("static/images/placeholder.txt", "r") as f:
+    PLACEHOLDER_B64 = f.read().strip()  # Remove whitespace/newlines
+
 @main_bp.route('/')
 @login_required
 def home():
     current_app.logger.info(f"Home page accessed by user: {session.get('email', 'Unknown')}")
-    return render_template('index.html')
+    return render_template('index.html', 
+                           favicon_b64=FAVICON_B64, 
+                           imageo_b64=IMAGEO_B64, 
+                           placeholder_b64=PLACEHOLDER_B64)
 
 @main_bp.route('/predict', methods=['POST'])
 @login_required
@@ -56,7 +73,7 @@ def health_check():
         # Basic health checks
         status = {
             'status': 'healthy',
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(local_tz).isoformat(),
             'version': '1.0.0'
         }
         
@@ -78,5 +95,5 @@ def health_check():
         return jsonify({
             'status': 'unhealthy',
             'error': str(e),
-            'timestamp': datetime.utcnow().isoformat()
+            'timestamp': datetime.now(local_tz).isoformat()
         }), 503

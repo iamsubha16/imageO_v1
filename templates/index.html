@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>imageO</title>
-  <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" />
+  <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,{{ favicon_b64 }}">
   <link rel="stylesheet" href="static/css/style.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -18,7 +18,7 @@
   <div class="fixed top-0 left-0 w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-sm z-10">
     <header class="max-w-lg mx-auto px-4 py-3 flex justify-between items-center">
       <div class="flex items-center gap-2">
-        <img src="https://huggingface.co/spaces/iamSubha16/imageO1/resolve/main/static/images/imageO.png" alt="ImageO Logo" class="w-8 h-8">
+        <img src="data:image/png;base64,{{ imageo_b64 }}" alt="ImageO Logo" class="w-8 h-8">
         <h1 class="text-xl font-bold gradient-text">imageO</h1>
       </div>
 
@@ -89,7 +89,7 @@
           Image Preview
         </h3>
         <div class="bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 flex items-center justify-center" style="min-height: 200px;">
-          <img id="imagePreview" src="static/images/Placeholder-image.png" alt="No image captured" class="w-full h-full object-contain max-h-48" />
+          <img id="imagePreview" src="data:image/png;base64,{{ placeholder_b64 }}" alt="No image captured" class="w-full h-full object-contain max-h-48" />
         </div>
       </div>
 
@@ -121,7 +121,7 @@
 
   <footer class="max-w-lg mx-auto px-4 py-4 text-center text-xs text-gray-500 dark:text-gray-500">
     <div class="flex items-center justify-center gap-2 mb-1">
-      <img src="https://huggingface.co/spaces/iamSubha16/imageO1/resolve/main/static/images/imageO.png" alt="ImageO Logo" class="w-4 h-4">
+      <img src="data:image/png;base64,{{ imageo_b64 }}" alt="ImageO Logo" class="w-4 h-4">
       <span class="font-medium">imageO</span>
     </div>
     <p>&copy; 2025 Imagine Labs. All rights reserved.</p>

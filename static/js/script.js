@@ -284,7 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
         await signOut(auth); // Sign out from Firebase
 
         // Then, clear Flask session by hitting /logout
-        window.location.href = "/logout";
+        window.location.href = "/auth/logout";
       } catch (error) {
         console.error("Logout failed:", error);
         alert("Logout failed: " + error.message);

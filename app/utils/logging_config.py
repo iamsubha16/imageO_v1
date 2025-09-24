@@ -6,6 +6,10 @@ from flask import request, g
 import time
 
 def setup_logging(app):
+    # Remove default handlers to prevent duplicate logs
+    if app.logger.hasHandlers():
+        app.logger.handlers.clear()
+
     # Create logs directory if it doesn't exist
     if not os.path.exists('logs'):
         os.mkdir('logs')
@@ -17,10 +21,11 @@ def setup_logging(app):
         backupCount=10
     )
     
-    # Create formatter
+    # Create formatter with local time
     formatter = logging.Formatter(
         '[%(asctime)s] %(levelname)s in %(module)s [%(pathname)s:%(lineno)d]: %(message)s'
     )
+    formatter.converter = time.localtime  # use local time
     file_handler.setFormatter(formatter)
     file_handler.setLevel(logging.INFO)
     
