@@ -30,6 +30,14 @@ jobs:
       # 4️⃣ Clone HF Space repo
       - name: Clone Hugging Face Space
         run: git clone https://huggingface.co/spaces/iamSubha16/imageO space_repo
+        
+      # 4️⃣ Clone HF Space repo
+      - name: Track binaries with Git LFS
+        run: |
+          cd space_repo
+          git lfs track "static/images/*"
+          git add .gitattributes
+          git commit -m "Track images with Git LFS" || echo "No changes to commit"
 
       # 5️⃣ Copy all files (except .git) to HF Space repo
       - name: Copy all files
