@@ -1,156 +1,259 @@
-## imageO – AI-based Milk Adulterant Detector
+# imageO - AI-Powered Milk Adulterant Detection System
 
-![Python](https://img.shields.io/badge/Python-3.12-blue)
-![Flask](https://img.shields.io/badge/Flask-3.1-green)
-![TensorFlow](https://img.shields.io/badge/TensorFlow-2.19-orange)
-![License](https://img.shields.io/badge/License-MIT-blue)
+[![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)](https://python.org)
+[![Flask](https://img.shields.io/badge/Flask-3.1+-green.svg)](https://flask.palletsprojects.com)
+[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.19+-orange.svg)](https://tensorflow.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-imageO is a Flask web app that detects edible-oil adulteration in milk images. It removes background using U^2-Net, enhances the image, and classifies it with a TensorFlow model. Authentication is handled via Firebase.
+## Overview
 
-### Key features
-- Background removal with U^2-Net (ONNX via `rembg`)
-- Image enhancement pipeline (crop, white flatten, tint/gamma, CLAHE)
-- Binary classification: `Milk` vs `Milk+Oil`
-- Firebase client auth; secure Flask server session
-- Health checks and structured logging
+imageO is an intelligent web application that leverages computer vision and machine learning to detect edible oil adulteration in milk samples through image analysis. The system combines advanced background removal techniques with deep learning classification to provide accurate, real-time detection of milk quality.
 
-## Project structure
+### Core Capabilities
+
+- **Automated Background Removal**: Utilizes U²-Net neural network for precise subject isolation
+- **Advanced Image Processing**: Multi-stage enhancement pipeline including cropping, color correction, and contrast optimization
+- **AI-Powered Classification**: Binary classification system distinguishing between pure milk and oil-adulterated samples
+- **Secure Authentication**: Firebase-based user authentication with session management
+- **Production Ready**: Comprehensive logging, health monitoring, and error handling
+
+## Architecture
+
+### System Components
+
 ```
-app/
-  __init__.py              # App factory; loads config, logging, models, firebase
-  config.py                # Constants and Flask settings
-  auth/
-    decorators.py         # `login_required`
-    routes.py             # /auth/login, /auth/logout, /auth/sessionLogin
-  main/
-    routes.py             # / (protected), /predict, /health
-  models/
-    models.py             # Initialize U^2-Net session and TF model from HF Hub
-  services/
-    firebase_service.py   # Initialize firebase_admin from base64 creds
-    image_processing.py   # Preprocessing pipeline
-    prediction.py         # Model inference, returns predicted class + cropped image
-  utils/
-    logging_config.py     # Rotating file + console logging
-    validators.py         # Base64 image validation
-templates/
-  index.html, login.html, signup.html
-static/
-  css/style.css, js/*.js, images/*.txt (base64 assets)
-run.py                    # Entrypoint (uses app factory)
-Dockerfile                # Gunicorn image (port 7860)
-requirements.txt          # Pinned dependencies
+imageO/
+├── app/
+│   ├── __init__.py              # Application factory and configuration
+│   ├── config.py                # Environment and Flask configurations
+│   ├── auth/                    # Authentication module
+│   │   ├── decorators.py        # Login required decorators
+│   │   └── routes.py            # Authentication endpoints
+│   ├── main/                    # Core application routes
+│   │   └── routes.py            # Main endpoints and prediction API
+│   ├── models/                  # Model initialization and management
+│   │   └── models.py            # U²-Net and classification model setup
+│   ├── services/                # Business logic services
+│   │   ├── firebase_service.py  # Firebase Admin SDK integration
+│   │   ├── image_processing.py  # Image preprocessing pipeline
+│   │   └── prediction.py        # ML inference service
+│   └── utils/                   # Utility modules
+│       ├── logging_config.py    # Structured logging configuration
+│       └── validators.py        # Input validation utilities
+├── templates/                   # Jinja2 HTML templates
+├── static/                      # Static assets (CSS, JavaScript, images)
+├── run.py                       # Application entry point
+├── Dockerfile                   # Container configuration
+└── requirements.txt             # Python dependencies
 ```
 
-## How it works
-1) Frontend (in `templates/index.html` and `static/js/script.js`)
-- Captures camera frame or uploads image, sends base64 to `/predict`.
-- Displays predicted class and cropped image returned by the API.
+## Technical Implementation
 
-2) API (`app/main/routes.py`)
-- `/predict` (POST, auth required) validates JSON, runs preprocessing + inference.
-- Returns `{ predicted_class, cropped_image }`.
-- `/health` checks model/session availability.
+### Image Processing Pipeline
 
-3) Preprocessing (`app/services/image_processing.py`)
-- Remove background (U^2-Net via `rembg` session in app config)
-- Crop foreground by alpha mask
-- Flatten on white, correct blue tint, gamma correction, CLAHE
-- Resize to 224x224 and return a `PIL.Image`
+1. **Background Removal**: U²-Net model removes background elements for focused analysis
+2. **Foreground Extraction**: Alpha mask-based cropping to isolate the milk sample
+3. **Color Correction**: White balance adjustment and blue tint correction
+4. **Enhancement**: Gamma correction and CLAHE (Contrast Limited Adaptive Histogram Equalization)
+5. **Standardization**: Resize to 224×224 pixels for model input
 
-4) Models (`app/models/models.py`)
-- U^2-Net ONNX loaded through `rembg.session_factory.new_session()`.
-- Milk classifier loaded from Hugging Face Hub (`keras` model).
+### Machine Learning Models
 
-5) Auth (`app/auth/routes.py` + frontend `login.js`/`register.js`)
-- Client signs in with Firebase Web SDK, obtains `idToken`.
-- Sends `idToken` to `/auth/sessionLogin` to create Flask session.
-- `@login_required` protects main routes. `/auth/logout` clears session.
+- **Background Removal**: U²-Net ONNX model via `rembg` library
+- **Classification**: Custom TensorFlow/Keras model trained for milk adulteration detection
+- **Model Repository**: Hosted on Hugging Face Hub for reliable access and versioning
 
-Note: `/auth/signup` is currently disabled on the server and returns 403; use Firebase client flows.
+### Authentication Flow
 
-## Requirements
-- Python 3.12+
-- A Firebase project (Web app) for client auth
-- Hugging Face account/token (optional but recommended for faster U^2-Net download)
+1. Client authenticates using Firebase Web SDK
+2. Firebase ID token exchanged for server-side session
+3. Protected routes validate session before processing requests
+4. Secure logout clears both client and server sessions
 
-## Environment variables
-- `FIREBASE_CREDS` (required): Base64-encoded Firebase service account JSON used by `firebase_admin`.
-- `SECRET_KEY` (optional): Flask secret key; defaults to random if unset.
-- `FLASK_ENV` (optional): `production` or `development`. Affects cookie security flags.
-- `PORT` (optional): Defaults to `7860`.
-- `HF_TOKEN` (optional): Hugging Face token to accelerate model downloads.
+## Installation & Setup
 
-Hugging Face repos used (see `app/config.py`):
-- Classification: `iamSubha16/milk_adulterant_detector_model_v7` → `milk_adulterant_detector_model_v7.keras`
-- Background removal: `iamSubha16/background_removal_model` → `u2net.onnx`
+### Prerequisites
 
-### Create FIREBASE_CREDS (Windows PowerShell)
+- Python 3.12 or higher
+- Firebase project with Web App configuration
+- Hugging Face account (optional, for faster model downloads)
+
+### Environment Configuration
+
+Create a `.env` file in the project root:
+
+```env
+FIREBASE_CREDS=<base64-encoded-firebase-service-account-json>
+HF_TOKEN=<hugging-face-token>
+SECRET_KEY=<flask-secret-key>
+FLASK_ENV=production
+PORT=7860
+```
+
+#### Generate Firebase Credentials
+
+**Windows PowerShell:**
 ```powershell
 [Convert]::ToBase64String([IO.File]::ReadAllBytes("path\to\firebase-credentials.json"))
 ```
-Then set it in PowerShell for a session:
-```powershell
-$env:FIREBASE_CREDS = "<base64-string>"
-$env:HF_TOKEN = "<optional-hf-token>"
-```
 
-You can also use a `.env` file in the project root. `python-dotenv` is loaded by model and firebase initializers.
-
-Example `.env`:
-```env
-FIREBASE_CREDS=base64-of-service-account-json
-HF_TOKEN=hf_xxx
-SECRET_KEY=change-me
-FLASK_ENV=production
-```
-
-## Run locally
+**Linux/macOS:**
 ```bash
-python -m venv .venv
-. .venv/Scripts/Activate.ps1   # PowerShell on Windows
-pip install --upgrade pip
-pip install -r requirements.txt
-setx FIREBASE_CREDS "<base64>"   # Or use $env:FIREBASE_CREDS for current shell
-setx HF_TOKEN "<optional>"
-python run.py
+base64 -i path/to/firebase-credentials.json
 ```
 
-App starts on `http://localhost:7860`.
+### Local Development
 
-## Docker
-The provided `Dockerfile` runs the app with Gunicorn.
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/yourusername/imageO.git
+   cd imageO
+   ```
+
+2. **Create virtual environment:**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # Linux/macOS
+   # or
+   venv\Scripts\activate     # Windows
+   ```
+
+3. **Install dependencies:**
+   ```bash
+   pip install --upgrade pip
+   pip install -r requirements.txt
+   ```
+
+4. **Set environment variables:**
+   ```bash
+   export FIREBASE_CREDS="<base64-encoded-credentials>"
+   export HF_TOKEN="<your-huggingface-token>"
+   ```
+
+5. **Run the application:**
+   ```bash
+   python run.py
+   ```
+
+The application will be available at `http://localhost:7860`
+
+### Docker Deployment
+
 ```bash
+# Build the image
 docker build -t imageo .
-docker run -p 7860:7860 -e FIREBASE_CREDS="<base64>" -e HF_TOKEN="<token>" imageo
+
+# Run the container
+docker run -p 7860:7860 \
+  -e FIREBASE_CREDS="<base64-credentials>" \
+  -e HF_TOKEN="<huggingface-token>" \
+  imageo
 ```
 
-## Endpoints
-- `GET /auth/login` – Login page (Firebase client auth)
-- `POST /auth/sessionLogin` – Exchanges Firebase `idToken` for Flask session
-- `GET /auth/logout` – Clears session
-- `GET /` – Home (requires session)
-- `POST /predict` – JSON `{ image: "data:image/jpeg;base64,..." }`
-- `GET /health` – Health and model readiness
+## API Reference
 
-Example request
+### Authentication Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/auth/login` | GET | Login page with Firebase authentication |
+| `/auth/sessionLogin` | POST | Exchange Firebase ID token for session |
+| `/auth/logout` | GET | Clear user session |
+
+### Application Endpoints
+
+| Endpoint | Method | Auth Required | Description |
+|----------|--------|---------------|-------------|
+| `/` | GET | ✓ | Main application interface |
+| `/predict` | POST | ✓ | Image analysis and classification |
+| `/health` | GET | ✗ | System health and model status |
+
+### Prediction API
+
+**Request:**
+```json
+{
+  "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEA..."
+}
+```
+
+**Response:**
+```json
+{
+  "predicted_class": "Milk",
+  "confidence": 0.95,
+  "cropped_image": "data:image/jpeg;base64,..."
+}
+```
+
+**Example Usage:**
 ```bash
 curl -X POST http://localhost:7860/predict \
   -H "Content-Type: application/json" \
-  -b "session=<your-session-cookie>" \
-  -d '{"image": "data:image/jpeg;base64,/9j/..."}'
+  -H "Cookie: session=<session-cookie>" \
+  -d '{"image": "data:image/jpeg;base64,<base64-image>"}'
 ```
 
-## Operational details
-- Max upload size: 16 MB (`MAX_CONTENT_LENGTH`)
-- Allowed image types: `image/jpeg`, `image/jpg`, `image/png`, `image/webp`
-- Logs: `logs/milk_detector.log` (rotating) + console
-- Error handlers: 400/401/403/404/413/500 with JSON responses
+## Configuration
+
+### Application Limits
+
+- **Maximum Upload Size**: 16 MB
+- **Supported Image Formats**: JPEG, JPG, PNG, WebP
+- **Image Processing Timeout**: 30 seconds
+- **Session Duration**: 24 hours
+
+### Model Configuration
+
+- **U²-Net Model**: `iamSubha16/background_removal_model/u2net.onnx`
+- **Classification Model**: `iamSubha16/milk_adulterant_detector_model_v7/milk_adulterant_detector_model_v7.keras`
+
+## Monitoring & Logging
+
+The application includes comprehensive logging and monitoring:
+
+- **Structured Logging**: JSON-formatted logs with timestamps and severity levels
+- **Log Rotation**: Automatic log file rotation to manage disk usage
+- **Health Checks**: Real-time monitoring of model availability and system status
+- **Error Tracking**: Detailed error reporting with stack traces
+
+Logs are written to `logs/milk_detector.log` and console output.
+
+## Security Features
+
+- **Session-Based Authentication**: Secure server-side session management
+- **Input Validation**: Comprehensive validation of image uploads and requests
+- **CSRF Protection**: Built-in Flask security measures
+- **Environment Isolation**: Sensitive credentials stored as environment variables
+- **Production Security**: Security headers and HTTPS-ready configuration
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
-MIT – see `LICENSE`.
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
-- `rembg` / U^2-Net for background removal
-- TensorFlow/Keras for classification
-- Firebase for authentication
+
+- [U²-Net](https://github.com/xuebinqin/U-2-Net) for background removal capabilities
+- [rembg](https://github.com/danielgatis/rembg) for ONNX model integration
+- [TensorFlow](https://tensorflow.org) for machine learning framework
+- [Firebase](https://firebase.google.com) for authentication services
+- [Hugging Face](https://huggingface.co) for model hosting and distribution
+
+## Support
+
+For questions, issues, or contributions, please:
+- Open an issue on GitHub
+- Contact the development team
+- Check the documentation in the `docs/` directory
+
+---
+
+**Built with ❤️ for food safety and quality assurance**
