@@ -33,7 +33,7 @@ jobs:
       # 6️⃣ Copy all files
       - name: Copy all files
         run: |
-          rsync -av --exclude='.git' --exclude='README.md' ./ ./space_repo/
+          rsync -av --exclude='.git' --exclude='README.md' --exclude='space_repo' ./ ./space_repo/
 
       # 7️⃣ Commit & Push to HF Space (with token)
       - name: Commit & Push to HF Space
