@@ -254,6 +254,4 @@ For questions, issues, or contributions, please:
 - Contact the development team
 - Check the documentation in the `docs/` directory
 
----
 
-**Built with ❤️ for food safety and quality assurance**
