@@ -203,10 +203,6 @@ curl -X POST http://localhost:7860/predict \
 - **Image Processing Timeout**: 30 seconds
 - **Session Duration**: 24 hours
 
-### Model Configuration
-
-- **U²-Net Model**: `iamSubha16/background_removal_model/u2net.onnx`
-- **Classification Model**: `iamSubha16/milk_adulterant_detector_model_v7/milk_adulterant_detector_model_v7.keras`
 
 ## Monitoring & Logging
 
@@ -252,6 +248,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 For questions, issues, or contributions, please:
 - Open an issue on GitHub
 - Contact the development team
-- Check the documentation in the `docs/` directory
 
 
